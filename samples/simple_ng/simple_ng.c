@@ -165,7 +165,7 @@ fieldbus_dump(Fieldbus *fieldbus)
 {
    ecx_contextt *context;
    ec_groupt *grp;
-   uint32 n;
+   //uint32 n;
    int wkc, expected_wkc;
 
    context = &fieldbus->context;
@@ -180,7 +180,7 @@ fieldbus_dump(Fieldbus *fieldbus)
       return FALSE;
    }
 
-   printf("  O:");
+   /*printf("  O:");
    for (n = 0; n < grp->Obytes; ++n)
    {
       printf(" %02X", grp->outputs[n]);
@@ -189,8 +189,61 @@ fieldbus_dump(Fieldbus *fieldbus)
    for (n = 0; n < grp->Ibytes; ++n)
    {
       printf(" %02X", grp->inputs[n]);
-   }
-   printf("  T: %lld\r", (long long)context->DCtime);
+   }*/
+  // 1.1 解析DataNo（UINT16，小端字节序：inputs[1]是高字节，inputs[0]是低字节）
+   uint16_t DataNo = (grp->inputs[1] << 8) | grp->inputs[0];
+
+   // 1.2 解析Fx（REAL32，小端字节序：inputs[2]低字节，inputs[5]高字节）
+   uint32_t fx_raw = (grp->inputs[5] << 24) |  // 第5字节（最高位）
+                     (grp->inputs[4] << 16) |  // 第4字节
+                     (grp->inputs[3] << 8)  |  // 第3字节
+                     grp->inputs[2];           // 第2字节（最低位）
+   float Fx;
+   memcpy(&Fx, &fx_raw, sizeof(Fx));  // 安全转换：避免指针对齐问题
+
+   // 1.3 解析Fy（REAL32，inputs[6]~inputs[9]）
+   uint32_t fy_raw = (grp->inputs[9] << 24) | 
+                     (grp->inputs[8] << 16) | 
+                     (grp->inputs[7] << 8)  | 
+                     grp->inputs[6];
+   float Fy;
+   memcpy(&Fy, &fy_raw, sizeof(Fy));
+
+   // 1.4 解析Fz（REAL32，inputs[10]~inputs[13]）
+   uint32_t fz_raw = (grp->inputs[13] << 24) | 
+                     (grp->inputs[12] << 16) | 
+                     (grp->inputs[11] << 8)  | 
+                     grp->inputs[10];
+   float Fz;
+   memcpy(&Fz, &fz_raw, sizeof(Fz));
+
+   // 1.5 解析Mx（REAL32，inputs[14]~inputs[17]）
+   uint32_t mx_raw = (grp->inputs[17] << 24) | 
+                     (grp->inputs[16] << 16) | 
+                     (grp->inputs[15] << 8)  | 
+                     grp->inputs[14];
+   float Mx;
+   memcpy(&Mx, &mx_raw, sizeof(Mx));
+
+   // 1.6 解析My（REAL32，inputs[18]~inputs[21]）
+   uint32_t my_raw = (grp->inputs[21] << 24) | 
+                     (grp->inputs[20] << 16) | 
+                     (grp->inputs[19] << 8)  | 
+                     grp->inputs[18];
+   float My;
+   memcpy(&My, &my_raw, sizeof(My));
+
+   // 1.7 解析Mz（REAL32，inputs[22]~inputs[25]）
+   uint32_t mz_raw = (grp->inputs[25] << 24) | 
+                     (grp->inputs[24] << 16) | 
+                     (grp->inputs[23] << 8)  | 
+                     grp->inputs[22];
+   float Mz;
+   memcpy(&Mz, &mz_raw, sizeof(Mz));
+
+   // 1.8 打印解析后的实际数据（换行避免覆盖，保留原时间戳）
+   printf("Parsed Data: DataNo=%d | Fx=%.3f N | Fy=%.3f N | Fz=%.3f N | Mx=%.3f Nm | My=%.3f Nm | Mz=%.3f Nm\n",DataNo, Fx, Fy, Fz, Mx, My, Mz);
+   // printf("  T: %lld\r", (long long)context->DCtime);
    return TRUE;
 }
 

@@ -27,3 +27,12 @@ Contributions are welcome. If you want to contribute you will need to
 sign a Contributor License Agreement and send it to us either by
 e-mail or by physical mail. More information is available on
 [https://rt-labs.com/contribution](https://rt-labs.com/contribution).
+
+使用说明
+```bash
+mkdir build
+cd build/
+cmake ..
+make
+sudo ./samples/simple_ng/simple_ng enp8s0
+```
