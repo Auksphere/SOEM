@@ -1,0 +1,27 @@
+# 力传感器节点配置参数
+force_sensor_node:
+  ros__parameters:
+    # EtherCAT网络接口
+    interface: "eth0"
+    
+    # 循环时间（微秒）- 控制发布频率
+    # 8000 us = 125 Hz
+    # 5000 us = 200 Hz  
+    # 10000 us = 100 Hz
+    cycle_time_us: 8000
+    
+    # 力传感器偏移校准值
+    fx_offset: -16.35  # X轴力偏移 (N)
+    fy_offset: -6.70   # Y轴力偏移 (N) 
+    fz_offset: 12.35   # Z轴力偏移 (N)
+    
+    # 力矩偏移校准值（如果需要）
+    mx_offset: 0.0     # X轴力矩偏移 (Nm)
+    my_offset: 0.0     # Y轴力矩偏移 (Nm)
+    mz_offset: 0.0     # Z轴力矩偏移 (Nm)
+    
+    # 发布话题名称
+    topic_name: "force_sensor_data"
+    
+    # 坐标系ID
+    frame_id: "force_sensor"
